@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Alavancagem para Trading</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Cores do tema claro (padrão) */
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --input-bg: #ffffff;
+        }
+        
+        /* Variáveis para o tema escuro */
+        .dark-mode {
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --primary-light: #1e3a8a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #e2e8f0;
+            --text-light: #94a3b8;
+            --bg: #111827;
+            --card: #1f2937;
+            --border: #374151;
+            --input-bg: #111827;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            position: relative;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+        
+        .info-box {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        
+        .info-box h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .info-box p {
+            color: var(--text);
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+        
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .input-field {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: var(--input-bg);
+            color: var(--text);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        button {
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .results {
+            background-color: var(--primary-light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .results-title {
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .result-box {
+            background-color: var(--card);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+        
+        .result-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .highlight {
+            background-color: #fef3c7;
+            color: #92400e;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+        
+        .dark-mode .highlight {
+            background-color: #78350f;
+            color: #fef3c7;
+        }
+        
+        .risk-high {
+            color: var(--danger);
+        }
+        
+        .risk-medium {
+            color: var(--warning);
+        }
+        
+        .risk-low {
+            color: var(--success);
+        }
+        
+        .result-description {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+        
+        .table-container {
+            margin-top: 25px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+        
+        tr:hover {
+            background-color: var(--primary-light);
+            cursor: pointer;
+        }
+        
+        tr.selected {
+            background-color: var(--primary-light);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-alto {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .badge-médio {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        
+        .badge-baixo {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+        
+        /* Botão de alternar tema */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--primary-light);
+            color: var(--text);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+        
+        /* Ícones de sol e lua */
+        .sun-icon, .moon-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sun-icon {
+            display: none;
+        }
+        
+        .dark-mode .sun-icon {
+            display: flex;
+        }
+        
+        .dark-mode .moon-icon {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .input-field {
+                min-width: 100%;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Botão para alternar entre tema claro e escuro -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">
+            <div class="sun-icon"><i class="fas fa-sun"></i></div>
+            <div class="moon-icon"><i class="fas fa-moon"></i></div>
+        </button>
+        
+        <div class="header">
+            <h1>Calculadora de Alavancagem</h1>
+            <p class="subtitle">Calcule o valor ideal para operar com segurança no trading</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>O que é alavancagem?</h3>
+            <p>Alavancagem permite que você opere com valores maiores do que tem disponível. Por exemplo, com 1x de alavancagem, para comprar R$100 em Bitcoin, você precisa ter R$100. Com 10x de alavancagem, você pode comprar R$100 em Bitcoin tendo apenas R$10.</p>
+            <p>⚠️ <strong>Atenção:</strong> Quanto maior a alavancagem, maior o risco. Esta calculadora ajuda a definir um valor seguro para operar, reduzindo chances de liquidação.</p>
+        </div>
+        
+        <div class="input-row">
+            <div class="input-field">
+                <label for="capital">Quanto você tem para investir?</label>
+                <input type="number" id="capital" value="1000" min="1" placeholder="Ex: 1000">
+            </div>
+            
+            <div class="input-field">
+                <label for="moeda">Qual moeda você usa?</label>
+                <select id="moeda">
+                    <option value="BRL" selected>BRL (Real)</option>
+                    <option value="USDT">USDT (Tether)</option>
+                    <option value="USDC">USDC (USD Coin)</option>
+                    <option value="BTC">BTC (Bitcoin)</option>
+                    <option value="ETH">ETH (Ethereum)</option>
+                    <option value="USD">USD (Dólar)</option>
+                    <option value="EUR">EUR (Euro)</option>
+                </select>
+            </div>
+            
+            <div class="input-field">
+                <label for="alavancagem">Qual alavancagem você quer usar?</label>
+                <select id="alavancagem">
+                    <option value="125">125x (Muito alto risco)</option>
+                    <option value="100">100x (Alto risco)</option>
+                    <option value="50">50x (Alto risco)</option>
+                    <option value="20">20x (Médio risco)</option>
+                    <option value="10">10x (Médio risco)</option>
+                    <option value="5">5x (Médio risco)</option>
+                    <option value="3" selected>3x (Baixo risco)</option>
+                    <option value="2">2x (Baixo risco)</option>
+                    <option value="1">1x (Sem risco)</option>
+                </select>
+            </div>
+        </div>
+        
+        <button id="calcular">Calcular valor seguro</button>
+        
+        <div class="results">
+            <div class="results-title">Resultados do cálculo</div>
+            <div class="results-grid">
+                <div class="result-box">
+                    <div class="result-label">Seu capital total</div>
+                    <div class="result-value" id="capitalTotal">1.000 BRL</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-label">Alavancagem escolhida</div>
+                    <div class="result-value" id="alavancagemSelecionada">3x</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-label">Valor ideal para usar</div>
+                    <div class="result-value highlight" id="valorMaximo">250 BRL</div>
+                    <div class="result-description">Este é o valor máximo recomendado para operar com segurança.</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-label">Poder de compra total</div>
+                    <div class="result-value" id="valorPosicao">750 BRL</div>
+                    <div class="result-description">Este é o valor total que você poderá operar usando alavancagem.</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-label">Nível de risco</div>
+                    <div class="result-value risk-low" id="nivelRisco">Baixo</div>
+                    <div class="result-description" id="riscoDescricao">Com 3x de alavancagem, o risco é considerado baixo se você usar apenas 25% do seu capital.</div>
+                </div>
+                
+                <div class="result-box">
+                    <div class="result-label">Recomendação</div>
+                    <div class="result-value" id="recomendacaoValor">25%</div>
+                    <div class="result-description" id="recomendacaoDescricao">É recomendado usar apenas 25% do seu capital para operar com 3x de alavancagem.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="tabelaAlavancagem">
+                <thead>
+                    <tr>
+                        <th>Alavancagem</th>
+                        <th>% Recomendada do Capital</th>
+                        <th>Nível de Risco</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- A tabela será preenchida via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="footer">
+            © 2025 Calculadora de Alavancagem para Trading | Use esta calculadora como referência. Sempre adapte sua estratégia conforme sua experiência e tolerância ao risco.
+        </div>
+    </div>
+
+    <script>
+        // Dados de alavancagem e proporções recomendadas
+        const dadosAlavancagem = {
+            "125": { proporcao: 0.5, risco: "Alto" },
+            "100": { proporcao: 1, risco: "Alto" },
+            "50": { proporcao: 2, risco: "Alto" },
+            "20": { proporcao: 5, risco: "Médio" },
+            "10": { proporcao: 10, risco: "Médio" },
+            "5": { proporcao: 15, risco: "Médio" },
+            "3": { proporcao: 25, risco: "Baixo" },
+            "2": { proporcao: 37.5, risco: "Baixo" },
+            "1": { proporcao: 100, risco: "Baixo" }
+        };
+
+        // Variável para controlar o estado do tema
+        let isDarkMode = false;
+
+        // Função para alternar entre tema claro e escuro
+        function alternarTema() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            isDarkMode = body.classList.contains('dark-mode');
+        }
+
+        // Função para preencher a tabela
+        function preencherTabela() {
+            const tbody = document.querySelector('#tabelaAlavancagem tbody');
+            if (!tbody) return; // Verificação de segurança
+            
+            tbody.innerHTML = ''; // Limpar tabela
+            
+            // Ordenar alavancagens do maior para o menor
+            const alavancagensOrdenadas = Object.keys(dadosAlavancagem).sort((a, b) => parseFloat(b) - parseFloat(a));
+            
+            // Criar linhas da tabela
+            alavancagensOrdenadas.forEach(alavancagem => {
+                const dados = dadosAlavancagem[alavancagem];
+                if (!dados) return; // Verificação de segurança
+                
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-alavancagem', alavancagem);
+                
+                // Verificar se esta é a alavancagem selecionada
+                const alavancagemAtual = document.getElementById('alavancagem').value;
+                if (alavancagem === alavancagemAtual) {
+                    tr.classList.add('selected');
+                }
+                
+                // Criar células
+                tr.innerHTML = `
+                    <td>${alavancagem}x</td>
+                    <td>${dados.proporcao}%</td>
+                    <td><span class="badge badge-${dados.risco.toLowerCase()}">${dados.risco}</span></td>
+                `;
+                
+                // Adicionar evento de clique
+                tr.addEventListener('click', function() {
+                    const select = document.getElementById('alavancagem');
+                    if (select) {
+                        select.value = alavancagem;
+                        calcular();
+                    }
+                });
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Função para calcular
+        function calcular() {
+            try {
+                // Obter valores dos inputs
+                const capitalInput = document.getElementById('capital');
+                const moedaSelect = document.getElementById('moeda');
+                const alavancagemSelect = document.getElementById('alavancagem');
+                
+                if (!capitalInput || !moedaSelect || !alavancagemSelect) {
+                    console.error('Elementos de input não encontrados');
+                    return;
+                }
+                
+                const capital = parseFloat(capitalInput.value) || 0;
+                const moeda = moedaSelect.value;
+                const alavancagem = alavancagemSelect.value;
+                
+                // Verificar capital
+                if (capital <= 0) {
+                    alert('Por favor, insira um valor válido para o capital');
+                    return;
+                }
+                
+                // Obter dados da alavancagem
+                const dados = dadosAlavancagem[alavancagem];
+                if (!dados) {
+                    console.error('Alavancagem não encontrada:', alavancagem);
+                    alert(`A alavancagem ${alavancagem}x não está disponível. Por favor, escolha outra opção.`);
+                    return;
+                }
+                
+                // Calcular valores
+                const proporcao = dados.proporcao;
+                const valorMaximo = (capital * proporcao / 100);
+                const valorPosicao = valorMaximo * parseFloat(alavancagem);
+                
+                // Atualizar a interface - verificando se os elementos existem antes
+                const elementos = {
+                    capitalTotal: document.getElementById('capitalTotal'),
+                    alavancagemSelecionada: document.getElementById('alavancagemSelecionada'),
+                    valorMaximo: document.getElementById('valorMaximo'),
+                    valorPosicao: document.getElementById('valorPosicao'),
+                    recomendacaoValor: document.getElementById('recomendacaoValor'),
+                    nivelRisco: document.getElementById('nivelRisco'),
+                    riscoDescricao: document.getElementById('riscoDescricao'),
+                    recomendacaoDescricao: document.getElementById('recomendacaoDescricao')
+                };
+                
+                // Atualizar valores apenas se os elementos existirem
+                if (elementos.capitalTotal) elementos.capitalTotal.textContent = `${capital.toLocaleString('pt-BR')} ${moeda}`;
+                if (elementos.alavancagemSelecionada) elementos.alavancagemSelecionada.textContent = `${alavancagem}x`;
+                if (elementos.valorMaximo) elementos.valorMaximo.textContent = `${valorMaximo.toLocaleString('pt-BR')} ${moeda}`;
+                if (elementos.valorPosicao) elementos.valorPosicao.textContent = `${valorPosicao.toLocaleString('pt-BR')} ${moeda}`;
+                if (elementos.recomendacaoValor) elementos.recomendacaoValor.textContent = `${proporcao}%`;
+                
+                // Atualizar o nível de risco
+                if (elementos.nivelRisco) {
+                    elementos.nivelRisco.textContent = dados.risco;
+                    
+                    // Remover classes de risco anteriores
+                    elementos.nivelRisco.className = 'result-value';
+                    
+                    // Adicionar classe de risco adequada
+                    if (dados.risco === 'Alto') {
+                        elementos.nivelRisco.classList.add('risk-high');
+                    } else if (dados.risco === 'Médio') {
+                        elementos.nivelRisco.classList.add('risk-medium');
+                    } else {
+                        elementos.nivelRisco.classList.add('risk-low');
+                    }
+                }
+                
+                // Atualizar textos descritivos
+                if (elementos.riscoDescricao) {
+                    elementos.riscoDescricao.textContent = `Com ${alavancagem}x de alavancagem, o risco é considerado ${dados.risco.toLowerCase()} se você usar apenas ${proporcao}% do seu capital.`;
+                }
+                
+                if (elementos.recomendacaoDescricao) {
+                    elementos.recomendacaoDescricao.textContent = `É recomendado usar apenas ${proporcao}% do seu capital para operar com ${alavancagem}x de alavancagem.`;
+                }
+                
+                // Atualizar seleção na tabela
+                const linhas = document.querySelectorAll('#tabelaAlavancagem tbody tr');
+                linhas.forEach(linha => {
+                    linha.classList.remove('selected');
+                    if (linha.getAttribute('data-alavancagem') === alavancagem) {
+                        linha.classList.add('selected');
+                        try {
+                            linha.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } catch (error) {
+                            console.log('Erro ao rolar para a linha:', error);
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Erro ao calcular:', error);
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Adicionar evento ao botão de alternar tema
+                const themeToggle = document.getElementById('themeToggle');
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', alternarTema);
+                }
+                
+                // Verificar se elementos essenciais existem
+                const elements = ['capital', 'moeda', 'alavancagem', 'calcular'];
+                const missingElements = elements.filter(id => !document.getElementById(id));
+                
+                if (missingElements.length > 0) {
+                    console.error('Elementos essenciais não encontrados:', missingElements);
+                    return;
+                }
+                
+                // Preencher tabela
+                preencherTabela();
+                
+                // Calcular valores iniciais
+                calcular();
+                
+                // Adicionar listeners
+                document.getElementById('calcular').addEventListener('click', calcular);
+                document.getElementById('capital').addEventListener('input', calcular);
+                document.getElementById('moeda').addEventListener('change', calcular);
+                document.getElementById('alavancagem').addEventListener('change', calcular);
+                
+                console.log('Calculadora inicializada com sucesso!');
+            } catch (error) {
+                console.error('Erro ao inicializar a calculadora:', error);
+            }
+        });
+    </script>
+</body>
+</html>
